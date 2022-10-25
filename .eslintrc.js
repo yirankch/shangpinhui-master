@@ -14,6 +14,8 @@ module.exports = {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'vue/multi-word-component-names': 0,
-    'space-before-function-paren': ['error', 'never']
+    'space-before-function-paren': ['error', 'never'],
+    'prefer-const': 0
+    // 'no-unused-vars': 'off'
   }
 }
