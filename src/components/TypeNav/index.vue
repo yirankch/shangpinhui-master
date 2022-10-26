@@ -2,10 +2,11 @@
   <div class="type-nav">
     <!-- 测试 state -->
     <div class="container">
-      <div @mouseleave="outClass()">
-        <h2 class="all">全部商品分类</h2>
+      <div @mouseleave="outClass()" @mouseenter="searchShow">
+        <h2 class="all" @click="$router.push('/home')">全部商品分类</h2>
         <!-- 三级联动 -->
-        <div class="sort">
+        <transition name="sort">
+          <div class="sort" v-show="show">
           <!-- 利用编程式导航+事件委派 -->
           <!--  @click="goSearch" 没+()表示第一个参数是 事件对象，加了()得使用$event  -->
           <div class="all-sort-list2" @click="goSearch($event)">
@@ -48,6 +49,8 @@
             </div>
           </div>
         </div>
+        </transition>
+
       </div>
 
       <nav class="nav">
@@ -72,14 +75,15 @@ export default {
   name: 'TypeNav',
   data() {
     return {
-      currentIndex: -1
+      currentIndex: -1,
+      show: true
     }
   },
-  // 出大问题,哪个模块要渲染数据,就把请求写在对应模块
-  // 数据加载完成,请求三级联动的数据
-  created() {
-    // 通知 vuex 发送请求,获取数据,存储于仓库中
-    this.$store.dispatch('categroyList')
+
+  // 组件挂载完毕  跳转每个页面都会挂载一次
+  mounted() {
+    // route 判断
+    if (this.$route.path !== '/home') { this.show = false }
   },
   computed: {
     // mapState 是vuex中的一个方法 mapState()
@@ -101,6 +105,7 @@ export default {
     }, 50),
     outClass() {
       this.currentIndex = -1
+      if (this.$route.path !== '/home') { this.show = false }
     },
     // 利用编程时导航+事件委派
     goSearch(event) {
@@ -127,10 +132,18 @@ export default {
         } else {
           query.categroy3Id = categroy3id
         }
-        // 给 location 动态添加参数
-        location.query = query
-        this.$router.push(location)
+        // 先在header跳转了，传入parmas参数，再点击typenav的时候需要判断有无params参数，有则添加跳转，否则跳转会丢失路径
+        if (this.$route.params) {
+          location.params = this.$route.params
+          // 给 location 动态添加参数
+          location.query = query
+          this.$router.push(location)
+        }
       }
+    },
+    // search 鼠标滑动的时候 展示
+    searchShow() {
+      this.show = true
     }
   }
 
@@ -258,6 +271,27 @@ export default {
           background: #bfa;
         }
       }
+    }
+
+    .sort-enter {
+      height: 0;
+    }
+    .sort-enter-to {
+      height: 461px;
+    }
+    .sort-enter-active {
+      transition: all .5s;
+    }
+
+    .sort-leave {
+      height: 461px;
+    }
+    .sort-leave-to {
+      height: 0;
+    }
+    .sort-leave-active {
+      // 没有动画效果，忘记加 s
+      transition: all .5s;
     }
   }
 }

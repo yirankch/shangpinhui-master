@@ -47,7 +47,8 @@ export default new VueRouter({
     // 给路由设置name 方便params 传参
     {
       name: 'search',
-      path: '/search',
+      // bug 如果没有加上？ 那么传参的时候会导致直接传入query少了search路径 路径报错
+      path: '/search/:keyword?',
       component: Search,
       meta: { show: true }
       // props: ($route) => {

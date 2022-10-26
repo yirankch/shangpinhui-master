@@ -37,7 +37,7 @@
             type="text"
             id="autocomplete"
             class="input-error input-xxlarge"
-            v-model="Search"
+            v-model="keyword"
           />
           <button
             class="sui-btn btn-xlarge btn-danger"
@@ -53,10 +53,11 @@
 </template>
 
 <script>
+
 export default {
   data() {
     return {
-      Search: ''
+      keyword: ''
       // k: ''
     }
   },
@@ -90,16 +91,18 @@ export default {
       //   }
       // }).catch(err => err)
       // 2:指定传递是空串，?
-      this.$router.push({
-        name: 'search',
-        // path: '/search', || this.Search
-        params: {
-          Search: this.Search
-        },
-        query: {
-          k: this.Search
+      // 判断有没有 query参数
+      if (this.$route.query) {
+        let location = {
+          name: 'search',
+          // 传递为空串
+          params: {
+            keyword: '' || undefined || this.keyword
+          }
         }
-      })
+        location.query = this.$route.query
+        this.$router.push(location)
+      }
     }
 
   }
