@@ -14,7 +14,7 @@
             <!-- 动态添加 class -->
             <div
               class="item bo"
-              v-for="(c1, index) in categroyList"
+              v-for="(c1, index) in categoryList"
               :key="c1.categoryId"
               :class="{ bfa: currentIndex == index }"
               @mouseenter="changeClass(index)"
@@ -23,7 +23,7 @@
               <h3>
                 <!-- <router-link to="/search">{{ c1.categoryName }}</router-link> -->
                 <!-- 去掉a标签的 herf 属性，利用事件委派进行跳转 -->
-                <a :data-categoryName="c1.categoryName" :data-categroy1Id="c1.categoryId">{{ c1.categoryName }}</a>
+                <a :data-categoryName="c1.categoryName" :data-category1Id="c1.categoryId">{{ c1.categoryName }}</a>
               </h3>
               <!-- 二，三级分类 -->
               <div class="item-list clearfix" v-show="currentIndex == index">
@@ -35,12 +35,12 @@
                   <dl class="fore">
                     <dt>
                       <!-- <router-link to="/search">{{ c2.categoryName }}</router-link> -->
-                      <a :data-categoryName="c2.categoryName" :data-categroy2Id="c2.categoryId">{{ c2.categoryName }}</a>
+                      <a :data-categoryName="c2.categoryName" :data-category2Id="c2.categoryId">{{ c2.categoryName }}</a>
                     </dt>
                     <dd>
                       <em v-for="c3 in c2.categoryChild" :key="c3.categoryId">
                         <!-- <router-link to="/search">{{ c3.categoryName }}</router-link> -->
-                        <a :data-categoryName="c3.categoryName" :data-categroy3Id="c3.categoryId">{{ c3.categoryName }}</a>
+                        <a :data-categoryName="c3.categoryName" :data-category3Id="c3.categoryId">{{ c3.categoryName }}</a>
                       </em>
                     </dd>
                   </dl>
@@ -84,14 +84,15 @@ export default {
   mounted() {
     // route 判断
     if (this.$route.path !== '/home') { this.show = false }
+    // this.$store.dispatch('categoryList')
   },
   computed: {
     // mapState 是vuex中的一个方法 mapState()
     // 对象形式,右侧需要的是一个函数,当使用这个计算属性的时候,右侧函数会立即执行一次
     // 注入一个参数state,其实即为大仓库中的数据
     ...mapState({
-      // 将大仓库里获取到的数据 赋值给 categroyList
-      categroyList: (state) => state.home.categroyList.slice(0, 15)
+      // 将大仓库里获取到的数据 赋值给 categoryList
+      categoryList: (state) => state.home.categoryList.slice(0, 15)
     })
   },
   methods: {
@@ -115,7 +116,7 @@ export default {
       // event.target
       const element = event.target
       // console.log(element.dataset)
-      const { categoryname, categroy1id, categroy2id, categroy3id } = element.dataset
+      const { categoryname, category1id, category2id, category3id } = element.dataset
       // 节点有一个dataset属性，可以获取节点的自定义属性与属性值
       // console.log(event.target)
       // console.log(categoryname)
@@ -125,12 +126,12 @@ export default {
       if (categoryname) {
         const location = { name: 'search' }
         const query = { categoryName: categoryname }
-        if (categroy1id) {
-          query.categroy1Id = categroy1id
-        } else if (categroy2id) {
-          query.categroy2Id = categroy2id
+        if (category1id) {
+          query.category1Id = category1id
+        } else if (category2id) {
+          query.category2Id = category2id
         } else {
-          query.categroy3Id = categroy3id
+          query.category3Id = category3id
         }
         // 先在header跳转了，传入parmas参数，再点击typenav的时候需要判断有无params参数，有则添加跳转，否则跳转会丢失路径
         if (this.$route.params) {
@@ -283,16 +284,16 @@ export default {
       transition: all .5s;
     }
 
-    .sort-leave {
-      height: 461px;
-    }
-    .sort-leave-to {
-      height: 0;
-    }
-    .sort-leave-active {
-      // 没有动画效果，忘记加 s
-      transition: all .5s;
-    }
+    // .sort-leave {
+    //   height: 461px;
+    // }
+    // .sort-leave-to {
+    //   height: 0;
+    // }
+    // .sort-leave-active {
+    //   // 没有动画效果，忘记加 s
+    //   transition: all .5s;
+    // }
   }
 }
 </style>

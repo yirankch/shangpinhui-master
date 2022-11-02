@@ -4,6 +4,8 @@ import axios from 'axios'
 import nprogress from 'nprogress'
 // 引入进度条的样式
 import 'nprogress/nprogress.css'
+// 引入store 获取 store user里面的 token
+import store from '@/store'
 // 1.利用 axios 对象的 方法create,去创建一个 axios 实例
 // 2. request就是 axios,只不过稍微配置一些
 const requests = axios.create({
@@ -15,8 +17,12 @@ const requests = axios.create({
 
 // 添加请求拦截器
 requests.interceptors.request.use(function(config) {
-  nprogress.start()
   // 在发送请求之前做些什么
+  // 需要携带token带给服务器
+  if (store.state.user.token) {
+    config.headers.token = store.state.user.token
+  }
+  nprogress.start()
   return config
 }, function(error) {
   // 对请求错误做些什么

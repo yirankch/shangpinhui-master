@@ -2,7 +2,7 @@ import { getCategoryList, getBannerList, reqFloorList } from '@/api'
 // vuex home 小模块
 const state = {
   // 三级联动的数据
-  categroyList: [],
+  categoryList: [],
   // 轮播图的数据
   bannerList: [],
   // floor的数据
@@ -11,8 +11,8 @@ const state = {
 
 const mutations = {
   // 得到返回的数据 处理数据
-  CATEGROYLIST(state, categroyList) {
-    state.categroyList = categroyList
+  CATEGORYLIST(state, categoryList) {
+    state.categoryList = categoryList
   },
   // 获取 action 返回的 BANNERLIST 数据
   BANNERLIST(state, bannerList) {
@@ -26,14 +26,14 @@ const mutations = {
 
 const actions = {
   // 发起 axios 请求获取 三级联动数据
-  async  categroyList({ commit }) {
+  async  categoryList({ commit }) {
     const result = await getCategoryList()
     // 将获取的数据提交给mutations
     // console.log(result)
     // 一定要判断之后再跳转, 纪录一下
     if (result.code === 200) {
       // console.log('数据发送改变')
-      commit('CATEGROYLIST', result.data)
+      commit('CATEGORYLIST', result.data)
     }
   },
   // 定义方法 发起 mockajax 请求获取 bannerList的数据

@@ -30,6 +30,7 @@ export default {
       immediate: true,
       handler() {
         // console.log('我在监听Floor组件中的list数据')
+        // 发请求是异步的，等请求发完，再new Swiper 实例
         this.$nextTick(() => {
           // 数据在父组件已经获取，直接可以使用swiper
           // eslint-disable-next-line no-unused-vars

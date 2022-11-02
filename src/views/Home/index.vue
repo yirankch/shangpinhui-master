@@ -27,7 +27,9 @@ import Brand from '@/views/Home/Brand'
 export default {
 // 在父元素中创建，遍历两个 floor
   created() {
+    // 获取
     this.$store.dispatch('getFloorList')
+    // 获取用户信息
   },
   computed: {
     ...mapState({

@@ -2,10 +2,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 // 引入路由组件 bug1 eslint 语法规范要求 import 在最前面
-import Home from '@/views/Home'
-import Login from '@/views/Login'
-import Register from '@/views/Register'
-import Search from '@/views/Search'
+import routes from './routes'
+// 引入 store
+import store from '@/store'
 // 使用插件
 Vue.use(VueRouter)
 // 重写 push replace 方法
@@ -39,25 +38,14 @@ VueRouter.prototype.replace = function(location, resolve, reject) {
 
 // 创建并且暴露一个路由器
 const router = new VueRouter({
+  // history: createWebHashHistory(),
   // 配置路由
-  routes: [
-    { path: '/home', component: Home, meta: { show: true } },
-    { path: '/login', component: Login, meta: { show: false } },
-    { path: '/register', component: Register, meta: { show: false } },
-    // 给路由设置name 方便params 传参
-    {
-      name: 'search',
-      // bug 如果没有加上？ 那么传参的时候会导致直接传入query少了search路径 路径报错
-      path: '/search/:keyword?',
-      component: Search,
-      meta: { show: true }
-      // props: ($route) => {
-      //   return { Search: $route.params.Search, k: $route.query.k }
-      // }
-    },
-    // 重定向 redirect 之后跟的是 path
-    { path: '*', redirect: 'home' }
-  ]
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    // 始终滚动到顶部
+    return { y: 0 }
+  }
+
 })
 
 // 全局守卫: 前置守卫
@@ -65,37 +53,47 @@ router.beforeEach(async(to, from, next) => {
   // to: 可以获取到你要跳转到哪个路由
   // from: 可以获取到你现在的路由
   // next：放行函数 next() 放行 next(path)放行到指定路径 next(false)
-  next()
+  // next()
   // 根据 token 来判断路由跳转
   // 如果有 token 那么是登录的，如果没有一定是没有登录
-  let token = store.state.user.token
-  let name = store.state.user.userinfo.name
-  console.log(token)
-  // 如果有有token
+  const token = store.state.user.token
+  const name = store.state.user.userinfo.name
+  // 如果用户登录了
   if (token) {
-    // 如果登录了去login，直接打回到home
-    if (to.path === 'login') {
+    // 如果要去login，直接打回到 /
+    if (to.path === '/login') {
       next('/')
     } else {
-      // 跳转除了login之外的路由
-      // 如果用户名已经有了
+      // 去其它的 页面，需要派发 action 获取userinfo的数据
+      // 通过有没有name判断
       if (name) {
         next()
       } else {
-        // 如果没有用户名，那么指派aciton去获取
+        // 获取到用户信息
         try {
+          // 派发action
           await store.dispatch('getUserInfo')
+          // 放行
+          next()
         } catch (error) {
-          // 为什么会出错，唯一解释就是 token 过期了
-          // 注意： 这里要先清除本地的token
-          // 只要去修改了 token，获取用户信息的时候，服务器发现，token不对，那么直接清除token，跳转到login
+          // 只有token 失效了才会报错
           await store.dispatch('loginOut')
           next('/login')
         }
       }
     }
   } else {
-    next()
+    // 没有 token 是游客，放行
+    // next()
+    console.log(to.path)
+    let toPath = to.path
+    // 如果游客访问一下路径 则把路径存储到路由上
+    if (toPath.indexOf('/trade') !== -1 || toPath.indexOf('/pay') !== -1 || toPath.indexOf('/search') !== -1) {
+      // 用户未登录访问 以上三个页面 存到路径
+      next('/login?redirect=' + toPath)
+    } else {
+      next()
+    }
   }
 })
 export default router

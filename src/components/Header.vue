@@ -5,11 +5,15 @@
       <div class="container">
         <div class="loginList">
           <p>尚品汇欢迎您！</p>
-          <p>
+          <p v-if="!userName">
             <span>请</span>
             <!-- 声明式导航 必须有 to 属性 -->
-            <router-link to="./login">登录</router-link>
+            <router-link to="./login" >登录</router-link>
             <router-link class="register" to="./register">免费注册</router-link>
+          </p>
+          <p v-else>
+            <a>{{userName}}</a>
+            <a class="register" @click="loginOut">退出登录</a>
           </p>
         </div>
         <div class="typeList">
@@ -61,6 +65,11 @@ export default {
       // k: ''
     }
   },
+  mounted() {
+    this.$bus.$on('clear', () => {
+      this.keyword = ''
+    })
+  },
   methods: {
     getSearch() {
       // // 第一种字符串传参 如果不加 {} 默认跳转路径
@@ -97,14 +106,28 @@ export default {
           name: 'search',
           // 传递为空串
           params: {
-            keyword: '' || undefined || this.keyword
+            // 先判断有没有 传参 如果有直接带参跳转，如果没有返回undefined  || 先判断最前面的值
+            keyword: this.keyword || undefined
           }
         }
         location.query = this.$route.query
         this.$router.push(location)
       }
-    }
+    },
+    async loginOut() {
+      try {
+        await this.$store.dispatch('loginOut')
+        this.$router.push('/login')
+      } catch (error) {
 
+      }
+    }
+  },
+  computed: {
+    // 计算属性是一个函数
+    userName() {
+      return this.$store.state.user.userinfo.loginName
+    }
   }
 }
 </script>
