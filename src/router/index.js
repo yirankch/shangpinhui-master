@@ -38,7 +38,7 @@ VueRouter.prototype.replace = function(location, resolve, reject) {
 }
 
 // 创建并且暴露一个路由器
-export default new VueRouter({
+const router = new VueRouter({
   // 配置路由
   routes: [
     { path: '/home', component: Home, meta: { show: true } },
@@ -59,3 +59,43 @@ export default new VueRouter({
     { path: '*', redirect: 'home' }
   ]
 })
+
+// 全局守卫: 前置守卫
+router.beforeEach(async(to, from, next) => {
+  // to: 可以获取到你要跳转到哪个路由
+  // from: 可以获取到你现在的路由
+  // next：放行函数 next() 放行 next(path)放行到指定路径 next(false)
+  next()
+  // 根据 token 来判断路由跳转
+  // 如果有 token 那么是登录的，如果没有一定是没有登录
+  let token = store.state.user.token
+  let name = store.state.user.userinfo.name
+  console.log(token)
+  // 如果有有token
+  if (token) {
+    // 如果登录了去login，直接打回到home
+    if (to.path === 'login') {
+      next('/')
+    } else {
+      // 跳转除了login之外的路由
+      // 如果用户名已经有了
+      if (name) {
+        next()
+      } else {
+        // 如果没有用户名，那么指派aciton去获取
+        try {
+          await store.dispatch('getUserInfo')
+        } catch (error) {
+          // 为什么会出错，唯一解释就是 token 过期了
+          // 注意： 这里要先清除本地的token
+          // 只要去修改了 token，获取用户信息的时候，服务器发现，token不对，那么直接清除token，跳转到login
+          await store.dispatch('loginOut')
+          next('/login')
+        }
+      }
+    }
+  } else {
+    next()
+  }
+})
+export default router
